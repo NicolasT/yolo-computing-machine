@@ -59,19 +59,11 @@ module StateUtils = functor(M : MONAD_HANDLER) -> (struct
     let send n m = M.tell [Send (n, m)]
     let resetElectionTimeout = M.tell [ResetElectionTimeout]
 end : sig
-    type 'a m = 'a M.m
-    val bind : 'a M.m -> ('a -> 'b M.m) -> 'b M.m
-    val return : 'a -> 'a M.m
-    val (>>=) : 'a M.m -> ('a -> 'b M.m) -> 'b M.m
+    include MONAD_UTILS with type 'a m = 'a M.m
 
-    val quorumSize : int M.m
-    val isMajority : NodeSet.t -> bool M.m
-
-    val view : (M.r, 'b) lens -> 'b M.m
-
-    val use : (M.s, 'b) lens -> 'b M.m
-    val (@=) : (M.s, 'b) lens -> 'b -> unit M.m
-    val (%=) : (M.s, 'b) lens -> ('b -> 'b) -> unit M.m
+    include CONFIG_UTILS with type 'a cm = 'a M.m
+    include READER_UTILS with type rur = M.r and type 'a rum = 'a M.m
+    include STATE_UTILS with type sus = M.s and type 'a sum = 'a M.m
 
     val log : string -> unit M.m
     val broadcast : message -> unit M.m

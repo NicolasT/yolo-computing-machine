@@ -17,12 +17,20 @@ let configNodes : (config, NodeSet.t) lens =
     and set s v = { s with _configNodes = v } in
     (get, set)
 
+module type CONFIG_UTILS = sig
+    type 'a cm
+    val quorumSize : int cm
+    val isMajority : NodeSet.t -> bool cm
+end
+
 module ConfigUtils = functor(M : sig
     include MONAD
     include MONAD_READER with type r = config and type 'a rm = 'a m
 end) -> (struct
     module MU = MonadUtils(M)
     open MU
+
+    type 'a cm = 'a M.m
 
     let quorumSize =
         M.ask >>= fun c ->
@@ -34,7 +42,4 @@ end) -> (struct
         quorumSize >>= fun q ->
         return (NodeSet.cardinal s >= q)
 
-end : sig
-    val quorumSize : int M.m
-    val isMajority : NodeSet.t -> bool M.m
-end)
+end : CONFIG_UTILS with type 'a cm = 'a M.m)
