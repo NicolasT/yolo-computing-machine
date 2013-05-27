@@ -1,13 +1,8 @@
-open Monad
-open Monad_reader
-open Monad_writer
-open Monad_state
 open Lens
 
-open Paxos_config
-open Paxos_types
-open Paxos_state
 open Paxos_event
+open Paxos_state
+open Paxos_types
 open Paxos_command
 open Paxos_message
 
