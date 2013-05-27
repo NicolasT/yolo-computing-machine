@@ -1,5 +1,5 @@
 open Monad_identity
-open Monad_trans_rws
+open Monad_rws
 
 open Paxos_event
 open Paxos_state
@@ -9,16 +9,15 @@ open Paxos_command
 open Paxos_message
 
 (* Our state machine is very pure and runs in the Identity monad *)
-module CM = RWST
+module CM = RWS
     (struct type t = config end)
     (Monoid.List(struct type t = command end))
     (struct type t = candidateState end)
-    (Identity)
 
 module CH = Paxos_candidate.Handler(CM)
 
 let handle config state event = match state with
-  | Candidate s -> Identity.runIdentity (CM.runRWST (CH.handle event) config s)
+  | Candidate s -> CM.runRWS (CH.handle event) config s
   | _ -> failwith "Not implemented"
 
 ;;
